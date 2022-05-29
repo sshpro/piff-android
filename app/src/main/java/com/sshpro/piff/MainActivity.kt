@@ -11,9 +11,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.sshpro.piff.business.DataState
+import com.sshpro.piff.business.domain.Photo
 import com.sshpro.piff.ui.theme.PiffTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -31,6 +35,35 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        subscribeUi()
+        viewModel.getPhotos()
+    }
+
+    private fun subscribeUi() {
+        viewModel.dataState.observe(this){ dataState ->
+            when(dataState){
+                is DataState.Success<List<Photo>> -> {
+                    displayProgressBar(false)
+                    updatePhotos(dataState.data)
+                }
+                is DataState.Error -> {
+                    displayProgressBar(false)
+                    displayError(dataState.exception.message)
+                }
+                is DataState.Loading -> {
+                    displayProgressBar(true)
+                }
+            }
+        }
+    }
+
+    private fun displayError(message: String?) {
+    }
+
+    private fun updatePhotos(photos: List<Photo>) {
+    }
+
+    private fun displayProgressBar(show: Boolean) {
     }
 }
 
@@ -46,3 +79,4 @@ fun DefaultPreview() {
         Greeting("Android")
     }
 }
+

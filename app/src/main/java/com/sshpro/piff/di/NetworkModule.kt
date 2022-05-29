@@ -1,6 +1,7 @@
 package com.sshpro.piff.di
 
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.sshpro.piff.business.Mapper
 import com.sshpro.piff.business.domain.Photo
 import com.sshpro.piff.business.network.*
@@ -10,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.*
 import javax.inject.Singleton
 
 @Module
@@ -19,14 +21,16 @@ class NetworkModule {
     @Singleton
     @Provides
     fun providesMoshi(): Moshi {
-        return Moshi.Builder().build()
+        return Moshi.Builder()
+            .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+            .build()
     }
 
     @Singleton
     @Provides
     fun provideRetrofit(moshi: Moshi): Retrofit.Builder {
         return Retrofit.Builder()
-            .baseUrl("https://www.flickr.com/services/feeds/photos_public.gne")
+            .baseUrl("https://www.flickr.com/services/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))
     }
 
