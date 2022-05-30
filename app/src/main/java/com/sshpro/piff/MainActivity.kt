@@ -4,81 +4,82 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.sshpro.piff.business.DataState
-import com.sshpro.piff.business.domain.Photo
-import com.sshpro.piff.compose.PhotoGrid
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.sshpro.piff.compose.GalleryView
+import com.sshpro.piff.compose.PhotoDetailView
+import com.sshpro.piff.compose.PhotoTopView
 import com.sshpro.piff.ui.theme.PiffTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             R.dimen.card_bottom_margin
             PiffTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    val dataState = viewModel.dataState.value
-                    PhotosView(dataState = dataState)
+                val navController = rememberNavController()
+                val backstackEntry = navController.currentBackStackEntryAsState()
+                Scaffold(
+                    topBar = {
+                        PhotoTopView(currentScreen = PhotoScreen.fromRoute(backstackEntry.value?.destination?.route))
+                    }
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = PhotoScreen.Gallery.name,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable(PhotoScreen.Gallery.name) {
+                            viewModel.getPhotos()
+                            val dataState = viewModel.getPhotosDataState.value
+
+                            GalleryView(dataState = dataState, onPhotoClick = { photoUrl ->
+                                val encodedUrl = URLEncoder.encode(photoUrl, StandardCharsets.UTF_8.toString())
+                                navigateToPhotoDetail(navController, encodedUrl)
+                            })
+                        }
+                        val photoName = PhotoScreen.Detail.name
+                        composable(
+                            route = "$photoName/{encodedUrl}",
+                            arguments = listOf(
+                                navArgument("encodedUrl") {
+                                    // Make argument type safe
+                                    type = NavType.StringType
+                                }
+                            )
+                        ) { entry ->
+                            val encodedUrl = entry.arguments?.getString("encodedUrl") ?: ""
+                            val decodedUrl = URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8
+                                .toString())
+                            viewModel.getPhoto(decodedUrl)
+                            PhotoDetailView(dataState = viewModel.getPhotoDataState.value)
+                        }
+                    }
                 }
             }
         }
     }
-
-
-}
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun PhotosView(dataState: DataState<List<Photo>>) {
-    when (dataState) {
-        is DataState.Success<List<Photo>> -> {
-            PhotoGrid(photos = dataState.data)
-        }
-        is DataState.Error -> {
-            ErrorView(dataState.exception.message)
-        }
-        is DataState.Loading -> {
-            ProgressView()
-        }
-    }
-}
-@Composable
-fun ErrorView(message: String?) {
-    Text(text = "Error $message")
 }
 
-@Composable
-fun ProgressView() {
-    Text(text = "Loading")
-
-}
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+private fun navigateToPhotoDetail(navController: NavHostController, photoUrl: String) {
+    navController.navigate("${PhotoScreen.Detail.name}/$photoUrl")
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    PiffTheme {
-        Greeting("Android")
-    }
-}
 

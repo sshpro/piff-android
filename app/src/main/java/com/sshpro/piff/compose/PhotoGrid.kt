@@ -12,14 +12,16 @@ import com.sshpro.piff.business.domain.Photo
 
 @ExperimentalFoundationApi
 @Composable
-fun PhotoGrid(photos: List<Photo>) {
+fun PhotoGrid(
+    photos: List<Photo>,
+    onPhotoClick: (String) -> Unit = {}
+) {
     LazyVerticalGrid(
         contentPadding = PaddingValues(10.dp),
         cells = GridCells.Adaptive(minSize = 200.dp)
     ) {
         items(photos) { photo ->
-            PhotoItem(photo = photo) {
-            }
+            PhotoItem(photo = photo, onPhotoClick = onPhotoClick)
         }
     }
 }
