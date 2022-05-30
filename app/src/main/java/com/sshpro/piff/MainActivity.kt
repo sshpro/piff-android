@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.sshpro.piff.business.DataState
 import com.sshpro.piff.business.domain.Photo
+import com.sshpro.piff.compose.PhotoGrid
 import com.sshpro.piff.ui.theme.PiffTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,51 +24,51 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            R.dimen.card_bottom_margin
             PiffTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
-                }
-            }
-        }
-        subscribeUi()
-        viewModel.getPhotos()
-    }
-
-    private fun subscribeUi() {
-        viewModel.dataState.observe(this){ dataState ->
-            when(dataState){
-                is DataState.Success<List<Photo>> -> {
-                    displayProgressBar(false)
-                    updatePhotos(dataState.data)
-                }
-                is DataState.Error -> {
-                    displayProgressBar(false)
-                    displayError(dataState.exception.message)
-                }
-                is DataState.Loading -> {
-                    displayProgressBar(true)
+                    val dataState = viewModel.dataState.value
+                    PhotosView(dataState = dataState)
                 }
             }
         }
     }
 
-    private fun displayError(message: String?) {
-    }
 
-    private fun updatePhotos(photos: List<Photo>) {
-    }
-
-    private fun displayProgressBar(show: Boolean) {
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PhotosView(dataState: DataState<List<Photo>>) {
+    when (dataState) {
+        is DataState.Success<List<Photo>> -> {
+            PhotoGrid(photos = dataState.data)
+        }
+        is DataState.Error -> {
+            ErrorView(dataState.exception.message)
+        }
+        is DataState.Loading -> {
+            ProgressView()
+        }
     }
 }
+@Composable
+fun ErrorView(message: String?) {
+    Text(text = "Error $message")
+}
 
+@Composable
+fun ProgressView() {
+    Text(text = "Loading")
+
+}
 @Composable
 fun Greeting(name: String) {
     Text(text = "Hello $name!")

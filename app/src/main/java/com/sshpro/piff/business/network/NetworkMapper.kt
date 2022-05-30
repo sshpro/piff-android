@@ -10,7 +10,7 @@ constructor() : Mapper<PhotoNetworkEntity, Photo> {
 
     override fun mapToDomain(input: PhotoNetworkEntity): Photo {
         return Photo(
-            url = input.url,
+            url = input.media["m"],
             title = input.title,
             dateTaken = input.dateTaken,
             datePublished = input.datePublished,

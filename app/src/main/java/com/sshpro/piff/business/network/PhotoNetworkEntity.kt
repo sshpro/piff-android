@@ -18,4 +18,5 @@ data class PhotoNetworkEntity(
     @Json(name = "author_id")
     val authorId: String,
     val tags: String,
+    val media: Map<String, String> = hashMapOf()
 )

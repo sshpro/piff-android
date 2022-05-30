@@ -8,9 +8,6 @@ import com.sshpro.piff.business.network.NetworkMapper
 import com.sshpro.piff.business.network.NetworkService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class PhotoRepository @Inject constructor(
@@ -22,18 +19,11 @@ class PhotoRepository @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : Repository {
 
-    override val photosFlow: Flow<DataState<List<Photo>>>
-        get() = flow {
-            emit(DataState.Loading)
-            val photos = fetchPhotos()
-            emit(DataState.Success(photos))
-        }.flowOn(coroutineDispatcher)
-
     override suspend fun tryUpdateFeedCache() {
-        if (cacheStrategy.shouldUpdate()) fetchPhotos()
+        if (cacheStrategy.shouldUpdate()) get()
     }
 
-    private suspend fun fetchPhotos(): List<Photo> {
+     override suspend fun get(): List<Photo> {
         val photos = networkMapper.mapToDomainList(networkService.getPhotoFeed().items)
         //TODO cache
         return photos

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Piff</string>
+    <string name="accessibility_photo">Photo is shown here</string>
 </resources>
