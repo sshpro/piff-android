@@ -5,9 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,34 +27,24 @@ import com.bumptech.glide.request.transition.Transition
 import com.sshpro.piff.R
 import com.sshpro.piff.business.domain.Photo
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PhotoItem(photo: Photo, onClick: () -> Unit) {
+fun PhotoItem(photo: Photo, onPhotoClick: (String) -> Unit = {}) {
     Card(
-        onClick = onClick,
         elevation = dimensionResource(id = R.dimen.card_elevation),
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
             .padding(horizontal = dimensionResource(id = R.dimen.card_side_margin))
             .padding(bottom = dimensionResource(id = R.dimen.card_bottom_margin))
+            .clickable {
+                onPhotoClick(photo.url ?: "")
+            }
     ) {
         Column(Modifier.fillMaxWidth()) {
-            photo.url?.let {
-                val image = loadPhoto(
-                    url = photo.url, defaultImageRes = R.drawable
-                        .ic_launcher_background
-                ).value
-                image?.let { img ->
-                    Image(
-                        bitmap = img.asImageBitmap(),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = stringResource(R.string.accessibility_photo),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dimensionResource(id = R.dimen.photo_height))
-                    )
-                }
-            }
+            AsyncImageView(
+                url = photo.url, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensionResource(id = R.dimen.photo_height))
+            )
             Text(
                 text = photo.title,
                 textAlign = TextAlign.Center,
@@ -62,6 +52,24 @@ fun PhotoItem(photo: Photo, onClick: () -> Unit) {
                     .fillMaxWidth()
                     .padding(vertical = dimensionResource(id = R.dimen.margin_default))
                     .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@Composable
+fun AsyncImageView(url: String?, modifier: Modifier) {
+    url?.let {
+        val image = loadPhoto(
+            url = url, defaultImageRes = R.drawable
+                .ic_launcher_background
+        ).value
+        image?.let { img ->
+            Image(
+                bitmap = img.asImageBitmap(),
+                contentScale = ContentScale.Crop,
+                contentDescription = stringResource(R.string.accessibility_photo),
+                modifier = modifier
             )
         }
     }

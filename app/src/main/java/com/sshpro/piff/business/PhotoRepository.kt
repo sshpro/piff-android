@@ -23,9 +23,16 @@ class PhotoRepository @Inject constructor(
         if (cacheStrategy.shouldUpdate()) get()
     }
 
-     override suspend fun get(): List<Photo> {
-        val photos = networkMapper.mapToDomainList(networkService.getPhotoFeed().items)
-        //TODO cache
-        return photos
+    private var _photos: List<Photo> = listOf()
+    override suspend fun get(): List<Photo> {
+        if (_photos.isNotEmpty()) {
+            return _photos
+        }
+        _photos = networkMapper.mapToDomainList(networkService.getPhotoFeed().items)
+        return _photos
+    }
+
+    override suspend fun get(url: String): Photo {
+        return get().first { it.url == url }
     }
 }

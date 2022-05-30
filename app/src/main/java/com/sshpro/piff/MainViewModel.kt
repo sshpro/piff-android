@@ -20,17 +20,30 @@ constructor(
     private val repository: Repository
 ) : ViewModel() {
 
-    val dataState: MutableState<DataState<List<Photo>>> = mutableStateOf(DataState.Loading)
-
-    init {
-        getPhotos()
-    }
+    val getPhotosDataState: MutableState<DataState<List<Photo>>> = mutableStateOf(DataState.Loading)
+    val getPhotoDataState: MutableState<DataState<Photo>> = mutableStateOf(DataState.Loading)
 
     fun getPhotos() {
         viewModelScope.launch {
-            dataState.value = DataState.Loading
-            val photos = repository.get()
-            dataState.value = DataState.Success(photos)
+            try {
+                getPhotosDataState.value = DataState.Loading
+                val photos = repository.get()
+                getPhotosDataState.value = DataState.Success(photos)
+            }catch(exception: Exception){
+                getPhotosDataState.value = DataState.Error(exception)
+            }
+        }
+    }
+
+    fun getPhoto(url: String) {
+        viewModelScope.launch {
+            try {
+                getPhotoDataState.value = DataState.Loading
+                val photo = repository.get(url)
+                getPhotoDataState.value = DataState.Success(photo)
+            } catch (exception: Exception) {
+                getPhotoDataState.value = DataState.Error(exception)
+            }
         }
     }
 }
