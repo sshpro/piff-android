@@ -1,3 +1,10 @@
+import dependencies.AndroidX
+import dependencies.Glide
+import dependencies.Google
+import dependencies.JUnit
+import dependencies.Square
+import dependencies.Versions
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -6,14 +13,14 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk Versions.compileSdk
 
     defaultConfig {
         applicationId "com.sshpro.piff"
-        minSdk 21
-        targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        minSdk Versions.minSdk
+        targetSdk Versions.targetSdk
+        versionCode Versions.versionCode
+        versionName Versions.versionName
 
         testInstrumentationRunner "com.sshpro.piff.PhotoFeedTestRunner"
         vectorDrawables {
@@ -32,13 +39,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = Versions.jvmTarget
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion Versions.compose
     }
     packagingOptions {
         resources {
@@ -49,48 +56,48 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation "androidx.activity:activity-compose:$compose_activity_version"
-    implementation "androidx.navigation:navigation-compose:$compose_navigation_version"
+    implementation AndroidX.core_ktx
+    implementation AndroidX.compose_ui
+    implementation AndroidX.compose_material
+    implementation AndroidX.compose_material_icons
+    implementation AndroidX.compose_ui_tooling_preview
+    implementation AndroidX.compose_activity
+    implementation AndroidX.compose_navigation
+    implementation AndroidX.lifecycle_runtime_ktx
+    implementation AndroidX.activity_ktx
 
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_runtime_ktx_version"
-    implementation 'androidx.activity:activity-ktx:1.4.0'
+    implementation Google.hilt_android
+    implementation Google.ar_core
+    kapt Google.ap_hilt
 
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    implementation 'com.google.ar:core:1.25.0'
-    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    implementation Square.moshi
+    implementation Square.moshi_kotlin
+    implementation Square.moshi_adapters
+    kapt Square.apt_moshi_kotlin_codegen
 
-    implementation "com.squareup.moshi:moshi:$moshi_version"
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_kotlin_version"
-    implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    implementation Square.okhttp
+    implementation Square.retrofit
+    implementation Square.retrofit_moshi_converter
 
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    implementation Glide.glide
+    annotationProcessor Glide.glide_ap
 
-    implementation 'com.github.bumptech.glide:glide:4.13.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
+    implementation AndroidX.room
+    kapt AndroidX.ap_room
 
-    implementation  "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    testImplementation JUnit.test_junit
+    androidTestImplementation AndroidX.android_test_ext_junit
+    androidTestImplementation AndroidX.android_test_espresso_core
+    androidTestImplementation AndroidX.android_test_compose_ui
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
-    androidTestImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
+    testImplementation Square.test_okhttp_mock_webserver
+    androidTestImplementation Square.android_test_okhttp_mock_webserver
 
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    debugImplementation AndroidX.debug_compose_ui_tooling
 
-    testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
-    kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    testImplementation Google.test_hilt
+    kaptTest Google.ap_test_hilt
 
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    androidTestImplementation Google.android_test_hilt
+    kaptAndroidTest Google.ap_android_test_hilt
 }
