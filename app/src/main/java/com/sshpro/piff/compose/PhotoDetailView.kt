@@ -1,11 +1,21 @@
 package com.sshpro.piff.compose
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ShareCompat
+import com.sshpro.piff.R
 import com.sshpro.piff.business.DataState
 import com.sshpro.piff.business.domain.Photo
 
@@ -27,12 +37,21 @@ fun PhotoDetailView(dataState: DataState<Photo>) {
 @Composable
 fun PhotoDetail(photo: Photo) {
     Column {
-        AsyncImageView(
-            url = photo.url,
+        Box(
+            contentAlignment = Alignment.TopEnd,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.60f)
-        )
+                .padding(0.dp)
+        ) {
+            AsyncImageView(
+                url = photo.url,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )
+            ShareButton(photo)
+        }
         PhotoDetailRow("Title: ", photo.title)
         PhotoDetailRow("Author: ", photo.author)
         PhotoDetailRow("Author Id: ", photo.authorId)
@@ -42,6 +61,24 @@ fun PhotoDetail(photo: Photo) {
         PhotoDetailRow("Description: ", photo.description)
         PhotoDetailRow("Tags: ", photo.tags.joinToString(separator = ","))
     }
+}
+
+@Composable
+private fun ShareButton(photo: Photo) {
+    val context = LocalContext.current
+    IconButton(
+        onClick = { startShareIntent(context, photo) },
+        content = { Icon(imageVector = Icons.Filled.Share, contentDescription = "") },
+        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_default))
+    )
+}
+
+private fun startShareIntent(context: Context, photo: Photo) {
+    ShareCompat.IntentBuilder(context)
+        .setType("text/plain")
+        .setChooserTitle(photo.title)
+        .setText(photo.url)
+        .startChooser()
 }
 
 @Composable
