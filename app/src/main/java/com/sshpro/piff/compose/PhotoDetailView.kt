@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import com.sshpro.piff.R
@@ -20,13 +21,19 @@ import com.sshpro.piff.business.DataState
 import com.sshpro.piff.business.domain.Photo
 
 @Composable
-fun PhotoDetailView(dataState: DataState<Photo>) {
+fun PhotoDetailView(dataState: DataState<Photo>, onError: (message: String) -> Unit) {
     when (dataState) {
         is DataState.Success<Photo> -> {
             PhotoDetail(photo = dataState.data)
         }
         is DataState.Error -> {
-            ErrorView(dataState.exception.message)
+            ErrorView(
+                message = dataState.exception.message,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )
+            onError(dataState.exception.message ?: stringResource(id = R.string.default_error))
         }
         is DataState.Loading -> {
             ProgressView()
