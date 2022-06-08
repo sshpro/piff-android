@@ -94,7 +94,7 @@ dependencies {
     androidTestImplementation Square.android_test_okhttp_mock_webserver
 
     debugImplementation AndroidX.debug_compose_ui_tooling
-
+    debugImplementation AndroidX.compose_ui_test_manifest
     testImplementation Google.test_hilt
     kaptTest Google.ap_test_hilt
 

@@ -12,6 +12,8 @@ object AndroidX {
     const val compose_activity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val compose_navigation =
         "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+    const val compose_ui_test_manifest = "androidx.compose.ui:ui-test-manifest:${Versions.compose}"
+
 
     const val lifecycle_runtime_ktx =
         "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifeCycleRuntimeKtx}"
